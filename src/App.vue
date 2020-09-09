@@ -4,9 +4,9 @@
       <v-text-field v-model="text" @keypress.enter="post()" />
       <v-btn @click="post()">POST</v-btn>
     </div>
-    <v-flex id="lista" v-for="item in lista" :key="item._id">
-      <span>{{ item.text }}</span>
-      <v-btn @click="excluir(item._id)">Excluir</v-btn>
+    <v-flex id="lista" v-for="(item, index) in lista" :key="index">
+      <span>{{ item }}</span>
+      <!-- <v-btn @click="excluir(item._id)">Excluir</v-btn> -->
     </v-flex>
   </v-container>
 </template>
@@ -19,24 +19,25 @@ export default {
 
   data: () => ({
     text: "",
-    lista: []
+    lista: [],
   }),
 
   created() {
-    axios
-      .get(`${this.$baseURL}/`)
-      .then(response => (this.lista = response.data));
-
-    this.sockets.subscribe("post", data => {
-      this.lista.unshift(data);
+    // axios
+    //   .get(`${this.$baseURL}/`)
+    //   .then(response => (this.lista = response.data));
+    console.log(this.$socket);
+    this.$socket.$subscribe("post", (data) => {
+      this.lista.unshift(data.text);
+      console.log(data);
     });
-    this.sockets.subscribe("delete", data => {
-      this.lista = this.lista.filter(item => item._id !== data._id);
-    });
+    // this.sockets.subscribe("delete", data => {
+    //   this.lista = this.lista.filter(item => item._id !== data._id);
+    // });
   },
 
   destroyed() {
-    this.sockets.unsubscribe("post");
+    this.$socket.$unsubscribe("post");
   },
 
   methods: {
@@ -47,8 +48,8 @@ export default {
       axios
         .post(`${this.$baseURL}/`, { text: this.text })
         .then(() => (this.text = ""));
-    }
-  }
+    },
+  },
 };
 </script>
 

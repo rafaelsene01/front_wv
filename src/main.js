@@ -1,20 +1,19 @@
 import Vue from "vue";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
-import VueSocketIO from "vue-socket.io";
+import VueSocketIOExt from "vue-socket.io-extended";
+import io from "socket.io-client";
 
-const baseURL = "http://localhost:3333";
+const baseURL = "https://api-wv.herokuapp.com";
+
+const socket = io(baseURL);
 Vue.prototype.$baseURL = baseURL;
 
-Vue.use(
-  new VueSocketIO({
-    connection: baseURL
-  })
-);
+Vue.use(VueSocketIOExt, socket);
 
 Vue.config.productionTip = false;
 
 new Vue({
   vuetify,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");
